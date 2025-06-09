@@ -14,9 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create output directory
+        run: mkdir -p build-output
+
       - name: Build Docker image
-        run: |
-          docker build -t project-builder .
+        run: docker build -t project-builder .
 
       - name: Run container and build project
         run: |
@@ -25,8 +27,14 @@ jobs:
             -v ${PWD}/build-output:/build \
             project-builder
 
+      - name: Check if log file exists
+        run: ls -la build-output/
+
+      - name: Print build log (for debugging)
+        run: cat build-output/build.log || echo "Log file not found"
+
       - name: Archive build log as artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-log
-          path: /build-output/build.log
+          path: build-output/build.log
