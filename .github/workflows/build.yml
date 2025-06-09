@@ -1,0 +1,32 @@
+name: Build with Docker and save log
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-docker-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t project-builder .
+
+      - name: Run container and build project
+        run: |
+          docker run --rm \
+            -v ${PWD}:/app \
+            -v ${PWD}/build-output:/build \
+            project-builder
+
+      - name: Archive build log as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-log
+          path: /build-output/build.log
